@@ -1,0 +1,4 @@
+resource_group_name  = "rg-zerotrust"
+location             = "Sweden Central"
+admin_password       = "WIJZIG-DIT-WACHTWOORD"
+mysql_admin_password = "WIJZIG-DIT-WACHTWOORD"
