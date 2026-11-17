@@ -4,6 +4,8 @@ resource "azurerm_public_ip" "appgw" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+  # <label>.<regio>.cloudapp.azure.com: nodig voor de Entra-login (redirect URI)
+  domain_name_label = var.dns_label
 }
 
 # Key Vault voor het certificaat
@@ -117,6 +119,11 @@ resource "azurerm_application_gateway" "main" {
     port = 443
   }
 
+  frontend_port {
+    name = "http-port"
+    port = 80
+  }
+
   frontend_ip_configuration {
     name                 = "appgw-frontend-ip"
     public_ip_address_id = azurerm_public_ip.appgw.id
@@ -155,6 +162,30 @@ resource "azurerm_application_gateway" "main" {
     http_listener_name         = "https-listener"
     backend_address_pool_name  = "frontend-vm-pool"
     backend_http_settings_name = "http-settings"
+  }
+
+  # HTTP alleen om door te sturen naar HTTPS (de sessiecookie is Secure)
+  http_listener {
+    name                           = "http-listener"
+    frontend_ip_configuration_name = "appgw-frontend-ip"
+    frontend_port_name             = "http-port"
+    protocol                       = "Http"
+  }
+
+  redirect_configuration {
+    name                 = "http-naar-https"
+    redirect_type        = "Permanent"
+    target_listener_name = "https-listener"
+    include_path         = true
+    include_query_string = true
+  }
+
+  request_routing_rule {
+    name                        = "http-rule"
+    priority                    = 2
+    rule_type                   = "Basic"
+    http_listener_name          = "http-listener"
+    redirect_configuration_name = "http-naar-https"
   }
 
   ssl_policy {

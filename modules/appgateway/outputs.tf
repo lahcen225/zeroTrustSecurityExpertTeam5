@@ -5,3 +5,7 @@ output "appgw_public_ip" {
 output "appgw_id" {
   value = azurerm_application_gateway.main.id
 }
+
+output "appgw_fqdn" {
+  value = azurerm_public_ip.appgw.fqdn
+}
