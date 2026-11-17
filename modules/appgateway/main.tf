@@ -216,5 +216,22 @@ resource "azurerm_web_application_firewall_policy" "main" {
       type    = "OWASP"
       version = "3.2"
     }
+
+    # De autorisatiecode van Microsoft (?code=... op /auth/callback) bevat "--"
+    # en triggert daardoor de SQL-injectieregels (vals alarm, bv. 942440).
+    # Alleen dat argument, alleen die regelgroep; de WAF blijft in Prevention.
+    exclusion {
+      match_variable          = "RequestArgNames"
+      selector_match_operator = "Equals"
+      selector                = "code"
+
+      excluded_rule_set {
+        type    = "OWASP"
+        version = "3.2"
+        rule_group {
+          rule_group_name = "REQUEST-942-APPLICATION-ATTACK-SQLI"
+        }
+      }
+    }
   }
 }
