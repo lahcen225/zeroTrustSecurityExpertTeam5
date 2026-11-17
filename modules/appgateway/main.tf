@@ -162,5 +162,28 @@ resource "azurerm_application_gateway" "main" {
     policy_name = "AppGwSslPolicy20220101"
   }
 
+  firewall_policy_id = azurerm_web_application_firewall_policy.main.id
+
   depends_on = [azurerm_key_vault_access_policy.appgw_identity]
+}
+
+resource "azurerm_web_application_firewall_policy" "main" {
+  name                = "waf-policy-zerotrust"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  policy_settings {
+    enabled                     = true
+    mode                        = "Prevention"
+    request_body_check          = true
+    file_upload_limit_in_mb     = 100
+    max_request_body_size_in_kb = 128
+  }
+
+  managed_rules {
+    managed_rule_set {
+      type    = "OWASP"
+      version = "3.2"
+    }
+  }
 }
