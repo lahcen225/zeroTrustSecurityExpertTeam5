@@ -1,0 +1,11 @@
+output "bastion_name" {
+  value = azurerm_bastion_host.main.name
+}
+
+output "bastion_id" {
+  value = azurerm_bastion_host.main.id
+}
+
+output "bastion_public_ip" {
+  value = azurerm_public_ip.bastion.ip_address
+}
