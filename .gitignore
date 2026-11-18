@@ -1,0 +1,9 @@
+# Terraform state bevat wachtwoorden en secrets: NOOIT op GitHub
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+*.tfplan
+*.tfvars
+!*.tfvars.example
+.env
