@@ -1,4 +1,24 @@
 # ---------------------------------------------------------------------------
+# Configuratie voor de Node.js-app (niet geheim)
+# ---------------------------------------------------------------------------
+output "app_config" {
+  description = "Waarden voor de OpenID Connect-configuratie van de Node.js-backend."
+  value = {
+    tenant_id     = var.tenant_id
+    client_id     = azuread_application.securemed.client_id
+    authority     = "https://login.microsoftonline.com/${var.tenant_id}"
+    redirect_uris = var.app_redirect_uris
+    app_rollen    = [for r in local.app_rollen : r.value]
+  }
+}
+
+# Geheim: doorgeven aan de infra (variabele entra_client_secret), die het in Key Vault zet.
+output "app_client_secret" {
+  value     = azuread_application_password.securemed.value
+  sensitive = true
+}
+
+# ---------------------------------------------------------------------------
 # Honeytoken en break-glass (voor de Wazuh-detectieregels)
 # ---------------------------------------------------------------------------
 output "decoy_account" {
