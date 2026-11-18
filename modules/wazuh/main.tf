@@ -72,6 +72,31 @@ resource "azurerm_linux_virtual_machine" "wazuh" {
     bash wazuh-install.sh --start-cluster
     bash wazuh-install.sh --wazuh-server wazuh-server
     bash wazuh-install.sh --wazuh-dashboard wazuh-dashboard
+
+    # Honeypot detectie regels toevoegen
+    cat >> /var/ossec/etc/rules/local_rules.xml <<'RULES'
+    <group name="honeypot,">
+      <rule id="100001" level="15">
+        <if_sid>5716</if_sid>
+        <match>decoyadmin</match>
+        <description>ALARM: Decoy account login gedetecteerd</description>
+      </rule>
+
+      <rule id="100002" level="15">
+        <if_sid>5715</if_sid>
+        <hostname>vm-honeypot</hostname>
+        <description>ALARM: SSH login op honeypot VM gedetecteerd</description>
+      </rule>
+
+      <rule id="100003" level="12">
+        <if_sid>5501</if_sid>
+        <hostname>vm-honeypot</hostname>
+        <description>ALARM: Login poging op honeypot VM</description>
+      </rule>
+    </group>
+    RULES
+
+    systemctl restart wazuh-manager
   EOF
   )
 }
